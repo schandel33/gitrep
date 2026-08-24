@@ -45,12 +45,33 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-# No matplotlib.use(...) here on purpose: matplotlib already auto-selects an
-# interactive backend when one is available (e.g. Spyder's Qt/inline backend,
-# so plt.show() below actually displays figures there) and falls back to the
-# non-interactive Agg backend by itself on headless machines (this repo's
-# cloud sessions, CI). Forcing Agg unconditionally was why plots weren't
-# showing up in Spyder -- PNGs still saved to disk, but nothing ever opened.
+def _running_inside_ipython_kernel() -> bool:
+    """True in Spyder/Jupyter (they pre-configure their own matplotlib
+    backend via %matplotlib magic before this script's code runs), False for
+    a plain `python tensile_analysis.py` invocation (a terminal, VS Code's
+    integrated terminal, a cloud/headless session)."""
+    try:
+        return get_ipython() is not None  # noqa: F821 -- injected by IPython at runtime
+    except NameError:
+        return False
+
+
+if not _running_inside_ipython_kernel():
+    # Plain script execution: don't let matplotlib auto-select its native
+    # backend. On very new Python releases (e.g. 3.14), matplotlib's native
+    # macOS backend (a compiled C extension) can crash outright --
+    # `SystemError: NULL object passed to Py_BuildValue` followed by a
+    # segfault -- before the backend's C code has caught up with the new
+    # CPython C-API. TkAgg doesn't touch Apple's Cocoa APIs at all and has
+    # been stable across Python versions for decades, so try it first; fall
+    # back to the non-interactive, save-only Agg backend if Tk isn't present
+    # at all (headless CI/cloud sessions, minimal Python builds).
+    try:
+        matplotlib.use("TkAgg")
+    except Exception:
+        matplotlib.use("Agg")
+# else: running inside Spyder's/Jupyter's own kernel -- leave the backend it
+# already configured alone (its Graphics preference / %matplotlib magic).
 
 
 # ============================================================================
