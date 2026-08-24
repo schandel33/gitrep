@@ -23,6 +23,15 @@ python3 tensile_analysis.py \
 the `Config` dataclass at the top of `tensile_analysis.py`. Outputs land in
 `./analysis_output/` by default.
 
+Plots always save as PNGs to the output directory. They also pop up /
+render inline (e.g. in Spyder's Plots pane, a Jupyter cell, or a VS Code
+plot viewer) because `Config.show_plots` defaults to `True` and the script
+no longer forces a save-only backend — it lets matplotlib auto-pick
+whatever interactive backend the environment provides, falling back to
+save-only automatically on a headless machine. Set `show_plots: bool =
+False` in `Config` if you're batch-running many times and don't want a
+window/inline plot popping up on every run.
+
 The script recurses through the data root looking for any CSV, so it doesn't
 care how deeply nested the `Test Run .../DAQ...csv` folders are relative to
 the `T###N##±1GFR###` condition folder.

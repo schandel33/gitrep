@@ -45,7 +45,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-matplotlib.use("Agg")  # safe default for headless runs; script still saves PNGs
+# No matplotlib.use(...) here on purpose: matplotlib already auto-selects an
+# interactive backend when one is available (e.g. Spyder's Qt/inline backend,
+# so plt.show() below actually displays figures there) and falls back to the
+# non-interactive Agg backend by itself on headless machines (this repo's
+# cloud sessions, CI). Forcing Agg unconditionally was why plots weren't
+# showing up in Spyder -- PNGs still saved to disk, but nothing ever opened.
 
 
 # ============================================================================
@@ -120,6 +125,7 @@ class Config:
     # --- plotting -------------------------------------------------------------
     dpi: int = 150
     max_curve_points: int = 4000  # decimate long curves for lighter plot files
+    show_plots: bool = True  # call plt.show() (pops up / renders inline in Spyder, VS Code, Jupyter, etc.)
 
 
 CFG = Config()
@@ -400,6 +406,8 @@ def plot_per_nozzle(all_curves: pd.DataFrame, summary: pd.DataFrame, outdir: Pat
         fig.tight_layout()
         fname = outdir / f"stress_strain_nozzle_{nz:.1f}mm.png"
         fig.savefig(fname, dpi=CFG.dpi)
+        if CFG.show_plots:
+            plt.show()
         plt.close(fig)
 
 
@@ -428,6 +436,8 @@ def plot_grid(all_curves: pd.DataFrame, summary: pd.DataFrame, outdir: Path):
     fig.suptitle("Stress-Strain by Nozzle Size and Print-Gravity Orientation (T105, FR0.85)", y=0.99)
     fig.legend(handles=handles, loc="upper center", ncol=2, fontsize=10, bbox_to_anchor=(0.5, 0.955))
     fig.savefig(outdir / "stress_strain_grid_all.png", dpi=CFG.dpi, bbox_inches="tight")
+    if CFG.show_plots:
+        plt.show()
     plt.close(fig)
 
 
@@ -465,6 +475,8 @@ def plot_summary_bars(summary: pd.DataFrame, outdir: Path):
     fig.suptitle("Summary: UTS and Modulus by Nozzle Size / Gravity Orientation")
     fig.tight_layout()
     fig.savefig(outdir / "summary_uts_modulus.png", dpi=CFG.dpi)
+    if CFG.show_plots:
+        plt.show()
     plt.close(fig)
 
 
