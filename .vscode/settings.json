@@ -1,0 +1,29 @@
+{
+  // A .venv holding pandas/numpy/matplotlib is tens of thousands of files.
+  // Git ignores it, but VS Code's file watcher and git-status scanner still
+  // crawl all of it on every operation, which is what makes commit (a purely
+  // local action) and push feel like they hang. Same for regenerated output.
+  "files.watcherExclude": {
+    "**/.venv/**": true,
+    "**/venv/**": true,
+    "**/__pycache__/**": true,
+    "**/analysis_output/**": true
+  },
+
+  // Keep these out of Ctrl/Cmd-P and project-wide search too.
+  "search.exclude": {
+    "**/.venv": true,
+    "**/venv": true,
+    "**/__pycache__": true,
+    "**/analysis_output": true
+  },
+
+  // Stop Pylance from indexing every package in the venv as project source.
+  "python.analysis.exclude": [
+    "**/.venv/**",
+    "**/analysis_output/**"
+  ],
+
+  // Don't nag about the number of changed files when output is regenerated.
+  "git.ignoreLimitWarning": true
+}
