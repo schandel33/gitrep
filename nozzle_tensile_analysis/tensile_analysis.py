@@ -85,7 +85,13 @@ class Config:
         "/Users/siddharthchandel/Claude/Projects/Research/07_Experiments/"
         "Raw Data/20AUG2026"
     )
-    output_dir: Path = Path("./analysis_output")
+    # Anchored to this script's own location (not the current working
+    # directory) so it always lands in the same place regardless of how or
+    # from where you run the script -- VS Code's "Run Python File" button,
+    # its integrated terminal, and a Spyder console can all start with a
+    # different cwd, which otherwise silently creates a different
+    # analysis_output/ folder each time.
+    output_dir: Path = Path(__file__).resolve().parent / "analysis_output"
 
     # --- specimen geometry ---------------------------------------------------
     # Custom dogbone, constant across every nozzle size / gravity condition.

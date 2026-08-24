@@ -20,17 +20,43 @@ python3 tensile_analysis.py \
 ```
 
 `--data-root` and `--output-dir` are optional; both default to the values in
-the `Config` dataclass at the top of `tensile_analysis.py`. Outputs land in
-`./analysis_output/` by default.
+the `Config` dataclass at the top of `tensile_analysis.py`. `output_dir`
+defaults to an `analysis_output/` folder next to the script itself
+(anchored to the script's location, not whatever directory you happened to
+launch it from) — so it always lands in the same place no matter how you
+run it.
 
-Plots always save as PNGs to the output directory. They also pop up /
-render inline (e.g. in Spyder's Plots pane, a Jupyter cell, or a VS Code
-plot viewer) because `Config.show_plots` defaults to `True` and the script
-no longer forces a save-only backend — it lets matplotlib auto-pick
-whatever interactive backend the environment provides, falling back to
-save-only automatically on a headless machine. Set `show_plots: bool =
-False` in `Config` if you're batch-running many times and don't want a
-window/inline plot popping up on every run.
+### Viewing plots: separate popup windows vs. an inline Plots panel
+
+Plots always save as PNGs to the output directory regardless of how you run
+the script. Whether they *also* pop up as windows or render inline in one
+panel (like Spyder's Plots pane) depends on how you launch it:
+
+- **Plain script execution** (VS Code's "Run Python File" button, or typing
+  `python3 tensile_analysis.py` in a terminal) → each of the 6 figures pops
+  up as its own separate OS window (via the Tk backend). This is the
+  crash-safe path (see the code comment above the backend-selection block
+  for why), but it's noisy if you're iterating a lot.
+- **VS Code's Interactive Window** → get a Spyder-like experience instead:
+  right-click anywhere in `tensile_analysis.py` and choose **"Run Current
+  File in Interactive Window"** (or use the dropdown arrow next to the
+  ▷ Run button at the top-right of the editor and pick it from there). This
+  runs the whole script through a Jupyter kernel inside VS Code, and every
+  figure the script produces collects in VS Code's **Plots** panel (the
+  small icon in the Interactive Window's toolbar, or open via the Command
+  Palette: "Jupyter: Focus on Plots View") — one place to scroll through
+  every generated figure, exactly like Spyder's Plots pane. No code changes
+  needed; the script already detects this (`get_ipython()`) and defers to
+  VS Code's own backend instead of forcing separate windows.
+  - First use may prompt you to install `ipykernel` in the active
+    environment — accept that, it's what powers the Interactive Window.
+  - Note: `--data-root`/`--output-dir` CLI flags aren't easily passed this
+    way, so it runs with `Config`'s defaults. Edit those defaults directly
+    in the script if you need a one-off different path.
+
+Set `Config.show_plots = False` if you're batch-running many times and
+don't want a window/inline plot appearing on every single run at all
+(PNGs still get saved either way).
 
 The script recurses through the data root looking for any CSV, so it doesn't
 care how deeply nested the `Test Run .../DAQ...csv` folders are relative to
