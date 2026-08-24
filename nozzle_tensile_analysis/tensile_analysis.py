@@ -492,9 +492,14 @@ def build_dataset(data_roots):
         reasons = []
         if r["flag_load_offset"]:
             reasons.append(
-                f"load-cell baseline offset {r['load_offset_n']:+.1f} N exceeds "
-                f"+/-{CFG.max_abs_load_offset_n} N (every load reading in this run "
-                f"is suspect, not just the first samples)"
+                f"load-cell baseline was {r['load_offset_n']:+.1f} N -- ALREADY "
+                f"CORRECTED to zero (that offset was subtracted from every row), "
+                f"but it exceeds +/-{CFG.max_abs_load_offset_n} N, orders of "
+                f"magnitude beyond the few-newton noise typical of the other runs. "
+                f"Subtracting a constant only fixes a constant error; a mis-zero "
+                f"this large usually means the specimen was pre-loaded or the cell "
+                f"untared, so this run's mechanical state may genuinely differ "
+                f"from its replicates"
             )
         if r["flag_sensor_dropout"]:
             reasons.append(
